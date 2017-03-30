@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.css">
+</head>
+<body>
+<div class="col-md-6 col-md-offset-3 table-bordered" style="padding: 30px">
+    <a href="detail.html" class="btn text-capitalize text-danger">新增用户</a>
+    <table class="table table-hover table-scripted">
+        <tr class="info">
+            <th class="text-center">编号</th>
+            <th class="text-center">用户名</th>
+            <th class="text-center">操作</th>
+        </tr>
+        <tbody id="content">
+        <!--<tr>-->
+            <!--<th class="text-center">1</th>-->
+            <!--<th class="text-center">zf</th>-->
+            <!--<th class="text-center">-->
+                <!--<a href="detail.html" class="btn btn-warning btn-xs">修改</a>-->
+                <!--<a href="javascript:;" class="btn btn-danger btn-xs">删除</a>-->
+            <!--</th>-->
+        <!--</tr>-->
+        </tbody>
+    </table>
+</div>
+
+
+<script src="./node_modules/jquery/dist/jquery.js"></script>
+<script>
+    var content=document.getElementById('content');
+    $.ajax({
+        url:'/getAllList',
+        type:'get',
+        dataType:'json',
+        cache:false,
+        success:function (result) {
+            if(result&&result.code==0){
+                bindHTML(result.data);
+            }
+        }
+    })
+    function bindHTML(data) {
+        var str='';
+        for(var i=0;i<data.length;i++){
+            var cur=data[i];
+            str+=`<tr>
+            <th class="text-center">${cur.id}</th>
+            <th class="text-center">${cur.name}</th>
+            <th class="text-center">
+                <a href="detail.html?id=${cur.id}" class="btn btn-warning btn-xs">修改</a>
+                <a href="javascript:;" class="btn btn-danger btn-xs" data-id="${cur.id}">删除</a>
+            </th>
+        </tr>`
+        }
+        content.innerHTML=str;
+    }
+    content.onclick=function (e) {
+        e=e||window.event;
+        var tar=e.target||e.srcElement;
+        var tarTag=tar.tagName.toUpperCase();
+        if(tarTag=='A'&&tar.innerHTML=='删除'){
+            var id=tar.getAttribute('data-id');
+            var flag=window.confirm(`确定要删除编号${id}为的内容吗`);
+            if(flag){
+                $.ajax({
+                    url:'/removeInfo',
+                    type:'get',
+                    dataType:'json',
+                    cache:false,
+                    success:function (result) {
+                        if(result&&result.code==0){
+                            content.removeChild(tar.parentNode.parentNode);
+                        }
+                    }
+                })
+            }
+        }
+    }
+
+
+
+
+</script>
+</body>
+</html>
